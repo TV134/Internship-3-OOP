@@ -7,6 +7,8 @@
         public DateTime ArrivalTime { get; set; }
         public double Distance { get; set; }
         public double Duration { get; set; }
+        public Plane Plane { get; set; }
+        public Crew Crew { get; set; }
 
         public Flight(string flightName, DateTime departureTime, DateTime arrivalTime, double distance, int duration) : base()
         {

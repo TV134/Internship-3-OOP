@@ -11,4 +11,10 @@
         Male,
         Female
     }
+    public enum Category
+    {
+        Standard,
+        Buisness,
+        VIP
+    }
 }
