@@ -20,6 +20,21 @@ namespace Aerodrom
         {
             new Crew("Posada 1", new List<Employee> { employees[0], employees[1], employees[2], employees[3]})
         };
+
+        static List<Plane> planes = new List<Plane>
+        {
+            new Plane("Boeing 737", 2010, 180, new Dictionary<Category,int>{{Category.Standard,150 },{Category.Buisness,30 }}),
+            new Plane("Airbus A320", 2015, 160, new Dictionary<Category,int>{{Category.Standard,140 },{Category.VIP,20 }}),
+            new Plane("Embraer E190", 2012, 100, new Dictionary<Category,int>{{Category.Standard,90 }})
+        };
+
+        static List<Flight> Flights = new List<Flight>
+        {
+            new Flight("LH123", new DateTime(2025,11,21,10,0,0), new DateTime(2025,11,21,12,30,0), 1500,planes[0],crews[0],"Split","London"),
+            new Flight("AF456", new DateTime(2025,11,22,14,0,0), new DateTime(2025,11,22,17,0,0), 2200,planes[1],crews[0],"Tokyo","New York"),
+            new Flight("BA789", new DateTime(2025,11,23,8,0,0), new DateTime(2025,11,23,10,15,0), 1300,planes[2],crews[0],"Frankfurt","Istanbul")
+        };
+
         static void Main(string[] args)
         {
             string? menu = "";
@@ -110,6 +125,10 @@ namespace Aerodrom
                 switch (menu)
                 {
                     case "1":
+                        foreach (var flight in Flights)
+                        {
+                            flight.Description();
+                        }
                         break;
 
                     case "2":
@@ -152,6 +171,10 @@ namespace Aerodrom
                 switch (menu)
                 {
                     case "1":
+                        foreach (var plane in planes)
+                        {
+                            plane.Description();
+                        }
                         break;
 
                     case "2":
@@ -329,6 +352,29 @@ namespace Aerodrom
             while (!validNumber && !number.Contains(inputNumber));
 
             return selectForCrew[inputNumber];
+        }
+
+        static void AddPlane()
+        {
+            Plane newPlane = new Plane();
+            Console.Write("Unesite ime: ");
+            string? name = Console.ReadLine();
+            while (newPlane.IsValidName(name))
+            {
+                Console.Write("Ime ne sadrži slova. Unesite ime: ");
+                name = Console.ReadLine();
+            }
+            newPlane.Name = name;
+
+            int yearOfCreation;
+            bool validYear = false;
+            do
+            {
+                Console.Write("Unesi godinu proizvodnje: ");
+                validYear = int.TryParse(Console.ReadLine(), out yearOfCreation);
+            }while(!validYear || yearOfCreation < 1900 || yearOfCreation > DateTime.Now.Year);
+
+            newPlane.YearOfCreation = yearOfCreation;
         }
     }
 }

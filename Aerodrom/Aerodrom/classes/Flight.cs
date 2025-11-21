@@ -9,14 +9,20 @@
         public double Duration { get; set; }
         public Plane Plane { get; set; }
         public Crew Crew { get; set; }
+        public string LocStart { get; set; }
+        public string LocEnd { get; set; }
 
-        public Flight(string flightName, DateTime departureTime, DateTime arrivalTime, double distance, int duration) : base()
+        public Flight(string flightName, DateTime departureTime, DateTime arrivalTime, double distance, Plane plane, Crew crew, string locStart, string locEnd) : base()
         {
             this.FlightName = flightName;
             this.DepartureTime = departureTime;
             this.ArrivalTime = arrivalTime;
             this.Distance = distance;
             this.Duration = CalculateDuration();
+            this.Plane = plane;
+            this.Crew = crew;
+            this.LocStart = locStart;
+            this.LocEnd = locEnd;
         }
 
         public override void Description()
@@ -26,7 +32,7 @@
 
         private double CalculateDuration()
         {
-            return (this.ArrivalTime - this.DepartureTime).TotalMinutes;
+            return (this.ArrivalTime - this.DepartureTime).TotalHours;
         }
     }
 }
