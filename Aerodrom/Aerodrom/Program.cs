@@ -4,7 +4,7 @@
     {
         static void Main(string[] args)
         {
-            string menu = "";
+            string? menu = "";
             do
             {
                 Console.Clear();
@@ -47,7 +47,7 @@
 
         static void PassengerMenu()
         {
-            string menu = "";
+            string? menu = "";
             do
             {
                 Console.Clear();
@@ -80,7 +80,7 @@
 
         static void FlightMenu()
         {
-            string menu = "";
+            string? menu = "";
             do
             {
                 Console.Clear();
@@ -122,7 +122,7 @@
 
         static void AirplaneMenu()
         {
-            string menu = "";
+            string? menu = "";
             do
             {
                 Console.Clear();
@@ -161,7 +161,7 @@
 
         static void CrewMenu()
         {
-            string menu = "";
+            string? menu = "";
             do
             {
                 Console.Clear();
