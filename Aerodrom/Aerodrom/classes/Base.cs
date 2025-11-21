@@ -10,5 +10,11 @@
             this.CreateDate= DateTime.Now;
             this.UpdateDate= DateTime.Now;
         }
+        virtual public void Description() { }
+
+        protected void UpdateToNow()
+        {
+            this.UpdateDate = DateTime.Now;
+        }
     }
 }
