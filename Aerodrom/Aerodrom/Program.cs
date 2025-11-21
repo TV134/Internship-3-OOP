@@ -176,9 +176,15 @@ namespace Aerodrom
                 switch (menu)
                 {
                     case "1":
+                        foreach (var crew in crews)
+                        {
+                            Console.WriteLine("Posada: ");
+                            crew.Description();
+                        }
                         break;
 
                     case "2":
+
                         break;
 
                     case "3":
