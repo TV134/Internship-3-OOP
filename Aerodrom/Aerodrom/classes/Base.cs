@@ -16,5 +16,14 @@
         {
             this.UpdateDate = DateTime.Now;
         }
+        public bool IsValidName(string name)
+        {
+            return name=="" || !name.All(c=>char.IsLetter(c));
+        }
+
+        public bool isValidDate(DateTime date)
+        {
+            return date.Year<1900 || date.Year>DateTime.Now.Year;
+        }
     }
 }

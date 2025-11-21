@@ -1,20 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Aerodrom.classes
+﻿namespace Aerodrom.classes
 {
     public enum  Position
     {
-        Kapetan,
-        Kopilot,
-        Stjuardesa
+        Captain,
+        Copilot,
+        Steward
     }
     public enum Gender
     {         
-        Musko,
-        Žensko
+        Male,
+        Female
     }
 }

@@ -5,15 +5,19 @@
         public string Name { get; set; }
         public string Surname { get; set; }
         public Position Job { get; set; }
-        public DateOnly BirthDate { get; set; }
+        public DateTime BirthDate { get; set; }
         public Gender Gender { get; set; }
-        public Employee(string name, string surname, Position job, DateOnly date, Gender gender) : base()
+        public Employee(string name, string surname, Position job, DateTime date, Gender gender) : base()
         {
             this.Name = name;
             this.Surname = surname;
             this.Job = job;
             this.BirthDate = date;
             this.Gender = gender;
+        }
+        public Employee() : base()
+        {
+            
         }
         public override void Description()
         {

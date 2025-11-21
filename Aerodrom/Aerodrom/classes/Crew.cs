@@ -13,7 +13,7 @@
         public override void Description()
         {
             Console.WriteLine($"{this.CrewName}");
-            foreach (var employee in Employees)
+            foreach (var employee in this.Employees)
             {
                 employee.Description();
             }
