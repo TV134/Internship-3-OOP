@@ -132,6 +132,7 @@ namespace Aerodrom
                         var logedPassenger = Login();
                         if (logedPassenger == null)
                             return;
+                        AdditionalMenu(logedPassenger);
                         break;
 
                     case "3":
@@ -763,6 +764,52 @@ namespace Aerodrom
             }
             Console.WriteLine("Uspješno logiranje");
             return passengers.First(p => p.Email == email);
+        }
+        static void AdditionalMenu(Passenger loged)
+        {
+            string? menu = "";
+            do
+            {
+                Console.Clear();
+                Console.WriteLine("1 - Prikaz svih letova\r\n2 - Odabir leta\r\n3 - Pretraga leta\r\n4 - Otkazivanje leta\r\n5 - Povratak na prethodni izbornik\r\n");
+
+                Console.Write("Odabir: ");
+                menu = Console.ReadLine();
+                var allFlights = loged.TakenFlights;
+
+                switch (menu)
+                {
+                    case "1":
+                        foreach(var flight in allFlights)
+                        {
+                            flight.Description();
+                        }
+                        break;
+
+                    case "2":
+                        
+                        break;
+
+                    case "3":
+                        string? choice = FindMethod();
+                        Search(choice,allFlights);
+                        break;
+
+                    case "4":
+                        CrewMenu();
+                        break;
+
+                    case "5":
+                        Console.WriteLine("Izlaz iz programa");
+                        break;
+
+                    default:
+                        Console.WriteLine("Krivi unos");
+                        break;
+                }
+                Console.WriteLine("Klikni tipku za nastavak");
+                Console.ReadKey();
+            }while (menu!="5");
         }
     }
 }
