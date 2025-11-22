@@ -1,4 +1,6 @@
 ﻿using Aerodrom.classes;
+using System.Collections;
+using System.Collections.Generic;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 namespace Aerodrom
 {
@@ -159,6 +161,7 @@ namespace Aerodrom
                         foreach (var flight in Flights)
                         {
                             flight.Description();
+                            Console.WriteLine(flight.Id);
                         }
                         break;
 
@@ -176,6 +179,7 @@ namespace Aerodrom
                         break;
 
                     case "5":
+                        DeleteFlight();
                         break;
 
                     case "6":
@@ -259,7 +263,6 @@ namespace Aerodrom
                     case "1":
                         foreach (var crew in crews)
                         {
-                            Console.WriteLine("Posada: ");
                             crew.Description();
                         }
                         break;
@@ -392,7 +395,7 @@ namespace Aerodrom
                 validNumber = int.TryParse(Console.ReadLine(), out inputNumber);
 
             }
-            while (!validNumber && !number.Contains(inputNumber));
+            while (!validNumber || inputNumber < 0 || inputNumber >= selectForCrew.Count);
 
             return selectForCrew[inputNumber];
         }
@@ -419,10 +422,14 @@ namespace Aerodrom
 
             newPlane.YearOfCreation = yearOfCreation;
 
-            while (newPlane.Categories.Count == 0)
+            bool hasCategory = false;
+            Dictionary<Category, int> temporaryDict = new Dictionary<Category, int>();
+            do
             {
                 foreach (var category in Enum.GetValues(typeof(Category)))
                 {
+                    if (temporaryDict.ContainsKey((Category) category))
+                        continue;
                     Console.WriteLine($"Želiš li unijeti {category} (Y/N)");
                     string yesNo = Console.ReadLine().ToUpper();
                     if (yesNo == "Y")
@@ -434,11 +441,15 @@ namespace Aerodrom
                             Console.Write($"Unesi broj sjedala za kategoriju {category}: ");
                             validSeats = int.TryParse(Console.ReadLine(), out seats);
                         } while (!validSeats || seats < 0);
-                        newPlane.Categories.Add((Category)category, seats);
+
+                        temporaryDict.Add((Category)category, seats);
+                        hasCategory = true;
                     }
                 }
-            }
 
+            } while (!hasCategory);
+
+            newPlane.Categories = temporaryDict;
             newPlane.Capacity = newPlane.Categories.Sum(c => c.Value);
 
             newPlane.NumberOfFlights = 0;
@@ -541,6 +552,7 @@ namespace Aerodrom
                 return;
             }
             planes.Remove(item);
+            item.UpdateToNow();
             Console.WriteLine("Informacija obrisana.");
 
         }
@@ -588,6 +600,8 @@ namespace Aerodrom
             item.ArrivalTime = arival;
             item.DepartureTime = departure;
             item.Duration = item.CalculateDuration();
+            item.UpdateToNow();
+            Console.WriteLine("Ažuriran let");
 
         }
 
@@ -606,7 +620,7 @@ namespace Aerodrom
             string? place = Console.ReadLine();
             while (newFlight.IsValidName(place))
             {
-                Console.Write("Prezime ne sadrži slova. Unesite prezime: ");
+                Console.Write("Mjesto ne sadrži slova. Unesite mjesto: ");
                 place = Console.ReadLine();
             }
 
@@ -675,33 +689,41 @@ namespace Aerodrom
             string yesNo = Console.ReadLine().ToUpper();
             return yesNo == "Y" ? true : false;
         }
-        //static void DeleteFlight()
-        //{
-        //    bool found = false;
-        //    Flight item = null;
+        static void DeleteFlight()
+        {
+            bool found = false;
+            Flight item = null;
 
-        //    Console.Write("Unesi ID: ");
-        //    if (Guid.TryParse(Console.ReadLine(), out Guid id))
-        //    {
-        //        (found, item) = FindById(Flights, id);
-        //    }
+            Console.Write("Unesi ID: ");
+            if (Guid.TryParse(Console.ReadLine(), out Guid id))
+            {
+                (found, item) = FindById(Flights, id);
+            }
 
-        //    if (!found || item.)
-        //    {
-        //        Console.WriteLine("Informacija nije pronađena.");
-        //        return;
-        //    }
+            if (!found)
+            {
+                Console.WriteLine("Informacija nije pronađena.");
+                return;
+            }
 
-        //    bool confirm = Confirm();
-        //    if (!confirm)
-        //    {
-        //        Console.WriteLine("Brisanje otkazano.");
-        //        return;
-        //    }
+            bool confirm = Confirm();
+            if (!confirm)
+            {
+                Console.WriteLine("Brisanje otkazano.");
+                return;
+            }
+            foreach (var passenger in passengers)
+            {
+                passenger.TakenFlights.Remove(item);
+                if (passenger.FlightAndSeat.ContainsKey(item))
+                    passenger.FlightAndSeat.Remove(item);
+                passenger.UpdateToNow();
+            }
+            Flights.Remove(item);
+            item.UpdateToNow();
 
-        //    Flights.Remove(item);
-        //    Console.WriteLine("Informacija obrisana.");
-        //}
+            Console.WriteLine("Informacija obrisana.");
+        }
 
         static void Registration()
         {
@@ -750,7 +772,7 @@ namespace Aerodrom
             string? email = Console.ReadLine();
             Console.Write("Lozinka: ");
             string? password = Console.ReadLine();
-            if (!passengerLog.ContainsKey(email) && passengerLog[email] != password)
+            if (!passengerLog.ContainsKey(email) || passengerLog[email] != password)
             {
                 Console.WriteLine("Neispravan email ili lozinka.");
                 return null;
@@ -768,12 +790,11 @@ namespace Aerodrom
 
                 Console.Write("Odabir: ");
                 menu = Console.ReadLine();
-                var allFlights = loged.TakenFlights;
 
                 switch (menu)
                 {
                     case "1":
-                        foreach(var flight in allFlights)
+                        foreach(var flight in loged.TakenFlights)
                         {
                             flight.Description();
                         }
@@ -783,16 +804,24 @@ namespace Aerodrom
                         Flight chosenFlight;
                         Category category;
                         (chosenFlight, category) = PickFlight(loged);
+                        if (chosenFlight==null)
+                        {
+                            Console.WriteLine("Nemoguć odabir");
+                            return;
+                        }
+                        loged.TakenFlights.Add(chosenFlight);
                         loged.FlightAndSeat.Add(chosenFlight, category);
+                        loged.UpdateToNow();
+                        Console.WriteLine("Uspješan odabir");
                         break;
 
                     case "3":
                         string? choice = FindMethod();
-                        Search(choice,allFlights);
+                        Search(choice, loged.TakenFlights);
                         break;
 
                     case "4":
-                        RemoveFlight(allFlights);
+                        RemoveFlight(loged.TakenFlights, loged);
                         break;
 
                     case "5":
@@ -807,7 +836,7 @@ namespace Aerodrom
                 Console.ReadKey();
             }while (menu!="5");
         }
-        static void RemoveFlight(List<Flight> logFlights)
+        static void RemoveFlight(List<Flight> logFlights, Passenger loged)
         {
             if (logFlights.Count < 1) {
                 Console.WriteLine("Ne postoje letovi");
@@ -821,11 +850,18 @@ namespace Aerodrom
                 return;
             }
             logFlights.Remove(chosenFlight);
+            loged.UpdateToNow();
             Console.WriteLine("Izbrisan let");
         }
         static (Flight,Category) PickFlight(Passenger loged)
         {
             var availableFlights = Flights.Where(f => !loged.TakenFlights.Contains(f)).ToList();
+            if (availableFlights.Count == 0)
+            {
+                Console.WriteLine("Nema dostupnih letova.");
+                return (null, default(Category));
+            }
+
 
             Flight chosenFlight = PickList(availableFlights);
 

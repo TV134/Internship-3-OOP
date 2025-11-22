@@ -10,7 +10,7 @@
         {
             this.YearOfCreation = yearOfCreation;
             this.Capacity = capacity;
-            this.NumberOfFlights = 0;
+            this.NumberOfFlights = 1;
             this.Categories = categories;
         }
 

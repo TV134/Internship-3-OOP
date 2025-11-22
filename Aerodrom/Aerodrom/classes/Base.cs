@@ -21,7 +21,7 @@
         }
         virtual public void Description() { }
 
-        protected void UpdateToNow()
+        public void UpdateToNow()
         {
             this.UpdateDate = DateTime.Now;
         }
