@@ -9,6 +9,33 @@ namespace Aerodrom
 {
     public class Program
     {
+        static List<Flight> Flights = new List<Flight>
+        {
+            new Flight("LH123", new DateTime(2025,11,21,10,0,0), new DateTime(2025,11,21,12,30,0), 1500,planes[0],crews[0],"Split"),
+            new Flight("AF456", new DateTime(2025,11,22,14,0,0), new DateTime(2025,11,22,17,0,0), 2200,planes[1],crews[0],"Tokyo"),
+            new Flight("BA789", new DateTime(2025,11,23,8,0,0), new DateTime(2025,11,23,10,15,0), 1300,planes[2],crews[0],"Frankfurt")
+        };
+        static List<Passenger> passengers = new List<Passenger>
+        {
+            new Passenger("Ivan", "Horvat", "ivan.horvat@gmail.com", "ivan123", new List<Flight>
+            {
+                Flights[0], Flights[1]
+            }),
+            new Passenger("Ana", "Kovač", "ana.kovac@gmail.com", "ana123", new List<Flight>
+            {
+                Flights[2]
+            }),
+
+            new Passenger("Marko", "Barić", "marko.baric@gmail.com", "marko123", new List<Flight>
+            {
+                Flights[0],Flights[1],Flights[2]
+            }),
+            new Passenger("Lucija", "Perić", "lucija.peric@gmail.com", "lucija123",new List<Flight>
+            {
+                Flights[0]
+            }),
+        };
+
         static List<Employee> employees = new List<Employee>
         {
             new Employee("Marko","Horvat",Position.Captain,new DateTime(1980,5,12),Gender.Male),
@@ -32,12 +59,14 @@ namespace Aerodrom
             new Plane("Embraer E190", 2012, 90, new Dictionary<Category,int>{{Category.Standard,90 }})
         };
 
-        static List<Flight> Flights = new List<Flight>
+        static Dictionary<string, string> passengerLog = new Dictionary<string, string>
         {
-            new Flight("LH123", new DateTime(2025,11,21,10,0,0), new DateTime(2025,11,21,12,30,0), 1500,planes[0],crews[0],"Split"),
-            new Flight("AF456", new DateTime(2025,11,22,14,0,0), new DateTime(2025,11,22,17,0,0), 2200,planes[1],crews[0],"Tokyo"),
-            new Flight("BA789", new DateTime(2025,11,23,8,0,0), new DateTime(2025,11,23,10,15,0), 1300,planes[2],crews[0],"Frankfurt")
+            { "ivan.horvat@gmail.com", "ivan123" },
+            { "ana.kovac@gmail.com", "ana123" },
+            { "marko.baric@gmail.com", "marko123" },
+            { "lucija.peric@gmail.com", "lucija123" }
         };
+
 
         static void Main(string[] args)
         {
@@ -96,9 +125,13 @@ namespace Aerodrom
                 switch (menu)
                 {
                     case "1":
+                        Registration();
                         break;
 
                     case "2":
+                        var logedPassenger = Login();
+                        if (logedPassenger == null)
+                            return;
                         break;
 
                     case "3":
@@ -193,13 +226,13 @@ namespace Aerodrom
                         break;
 
                     case "3":
-                        choice=FindMethod();
-                        Search(choice,planes);
+                        choice = FindMethod();
+                        Search(choice, planes);
                         break;
 
                     case "4":
-                        choice=FindMethod();
-                        Delete(choice,planes);
+                        choice = FindMethod();
+                        DeletePlane(choice);
                         break;
 
                     case "5":
@@ -419,27 +452,27 @@ namespace Aerodrom
             return newPlane;
         }
 
-        static (bool,T) FindById<T>(List<T> list, Guid id) where T : Base
+        static (bool, T) FindById<T>(List<T> list, Guid id) where T : Base
         {
             foreach (var item in list)
             {
                 if (item.Id == id)
                 {
-                    return (true,item);
+                    return (true, item);
                 }
             }
-            return (false,null);
+            return (false, null);
         }
-        static (bool,T) FindByName<T>(List<T> list, string name) where T : Base
+        static (bool, T) FindByName<T>(List<T> list, string name) where T : Base
         {
             foreach (var item in list)
             {
                 if (item.Name.ToLower().CompareTo(name.ToLower()) == 0)
                 {
-                    return (true,item);
+                    return (true, item);
                 }
             }
-            return (false,null);
+            return (false, null);
         }
 
         static void Search<T>(string choice, List<T> list) where T : Base
@@ -449,26 +482,26 @@ namespace Aerodrom
             if (choice == "1")
             {
                 Console.Write("Unesi ID: ");
-                if (Guid.TryParse(Console.ReadLine(),out Guid id))
+                if (Guid.TryParse(Console.ReadLine(), out Guid id))
                 {
-                    (found,item) = FindById(list, id);
+                    (found, item) = FindById(list, id);
                 }
-                
+
             }
             else if (choice == "2")
             {
                 Console.Write("Unesi naziv: ");
                 string name = Console.ReadLine();
-                (found,item) = FindByName(list, name);
+                (found, item) = FindByName(list, name);
             }
             if (!found)
             {
                 Console.WriteLine("Informacija nije pronađena.");
                 return;
             }
-            
+
             item.Description();
-            
+
 
         }
         static string FindMethod()
@@ -482,16 +515,16 @@ namespace Aerodrom
             while (choice != "1" && choice != "2");
             return choice;
         }
-        static void Delete<T>(string choice, List<T> list) where T : Base
+        static void DeletePlane(string choice)
         {
             bool found = false;
-            T item = null;
+            Plane item = null;
             if (choice == "1")
             {
                 Console.Write("Unesi ID: ");
                 if (Guid.TryParse(Console.ReadLine(), out Guid id))
                 {
-                    (found,item) = FindById(list, id);
+                    (found, item) = FindById(planes, id);
                 }
 
             }
@@ -499,17 +532,23 @@ namespace Aerodrom
             {
                 Console.Write("Unesi naziv: ");
                 string name = Console.ReadLine();
-                (found,item) = FindByName(list, name);
+                (found, item) = FindByName(planes, name);
             }
             if (!found)
             {
                 Console.WriteLine("Informacija nije pronađena.");
                 return;
             }
-            
-            list.Remove(item);
+
+            bool confirm = Confirm();
+            if (!confirm)
+            {
+                Console.WriteLine("Brisanje otkazano.");
+                return;
+            }
+            planes.Remove(item);
             Console.WriteLine("Informacija obrisana.");
-            
+
         }
         static void UpdateFlight(List<Flight> flights)
         {
@@ -544,7 +583,12 @@ namespace Aerodrom
             }
             while (!validArrive || (arival <= DateTime.Now));
 
-
+            bool confirm = Confirm();
+            if (!confirm)
+            {
+                Console.WriteLine("Ažuriranje otkazano.");
+                return;
+            }
 
             item.Crew = PickList(crews);
             item.ArrivalTime = arival;
@@ -599,8 +643,8 @@ namespace Aerodrom
             }
             while (!validNumber || (distance <= 0));
 
-            newFlight.Crew= PickList(crews);
-            newFlight.Plane= PickList(planes);
+            newFlight.Crew = PickList(crews);
+            newFlight.Plane = PickList(planes);
             newFlight.Name = name;
             newFlight.Distance = distance;
             newFlight.DepartureTime = departure;
@@ -635,7 +679,90 @@ namespace Aerodrom
         {
             Console.WriteLine($"Potvrdi: (Y/N)");
             string yesNo = Console.ReadLine().ToUpper();
-            return yesNo == "Y"?true:false;
+            return yesNo == "Y" ? true : false;
+        }
+        //static void DeleteFlight()
+        //{
+        //    bool found = false;
+        //    Flight item = null;
+
+        //    Console.Write("Unesi ID: ");
+        //    if (Guid.TryParse(Console.ReadLine(), out Guid id))
+        //    {
+        //        (found, item) = FindById(Flights, id);
+        //    }
+
+        //    if (!found || item.)
+        //    {
+        //        Console.WriteLine("Informacija nije pronađena.");
+        //        return;
+        //    }
+
+        //    bool confirm = Confirm();
+        //    if (!confirm)
+        //    {
+        //        Console.WriteLine("Brisanje otkazano.");
+        //        return;
+        //    }
+
+        //    Flights.Remove(item);
+        //    Console.WriteLine("Informacija obrisana.");
+        //}
+
+        static void Registration()
+        {
+            Console.Write("Ime: ");
+            string? name = Console.ReadLine();
+
+            Console.Write("Prezime: ");
+            string? surname = Console.ReadLine();
+
+            string? email = "";
+            while (!email.Contains('@') & email.Length < 3)
+            {
+                Console.Write("Email: ");
+                email = Console.ReadLine();
+
+                if (passengerLog.ContainsKey(email))
+                {
+                    Console.WriteLine("Email već postoji.");
+                    return;
+                }
+            }
+
+            Console.Write("Lozinka: ");
+            string? password = Console.ReadLine();
+            while (password.Length < 6)
+            {
+                Console.Write("Lozinka: ");
+                password = Console.ReadLine();
+            }
+
+            Console.Write("Godina rođenja: ");
+            string? year = Console.ReadLine();
+
+            Passenger newPassenger = new Passenger(name, surname, email, password, new List<Flight>());
+            newPassenger.YearOfBirth = newPassenger.SetYear(year);
+
+            passengerLog.Add(email, password);
+            passengers.Add(newPassenger);
+
+            Console.WriteLine("Registracija uspješna!");
+        }
+
+        static Passenger Login()
+        {
+            Console.Write("Email: ");
+            string? email = Console.ReadLine();
+            Console.Write("Lozinka: ");
+            string? password = Console.ReadLine();
+            if (!passengerLog.ContainsKey(email) && passengerLog[email] != password)
+            {
+                Console.WriteLine("Neispravan email ili lozinka.");
+                return null;
+            }
+            Console.WriteLine("Uspješno logiranje");
+            return passengers.First(p => p.Email == email);
         }
     }
 }
