@@ -1,4 +1,5 @@
 ﻿using Aerodrom.classes;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 namespace Aerodrom
 {
     public class Program
@@ -664,7 +665,7 @@ namespace Aerodrom
                 validNumber = int.TryParse(Console.ReadLine(), out inputNumber);
 
             }
-            while (!validNumber && !number.Contains(inputNumber));
+            while (!validNumber || inputNumber < 0 || inputNumber >= list.Count);
             return list[inputNumber];
         }
 
@@ -779,7 +780,10 @@ namespace Aerodrom
                         break;
 
                     case "2":
-                        
+                        Flight chosenFlight;
+                        Category category;
+                        (chosenFlight, category) = PickFlight(loged);
+                        loged.FlightAndSeat.Add(chosenFlight, category);
                         break;
 
                     case "3":
@@ -818,6 +822,32 @@ namespace Aerodrom
             }
             logFlights.Remove(chosenFlight);
             Console.WriteLine("Izbrisan let");
+        }
+        static (Flight,Category) PickFlight(Passenger loged)
+        {
+            var availableFlights = Flights.Where(f => !loged.TakenFlights.Contains(f)).ToList();
+
+            Flight chosenFlight = PickList(availableFlights);
+
+            Console.WriteLine("\nKategorije na ovom letu:");
+            var categories = chosenFlight.Plane.Categories.Keys.ToList();
+
+            for (int i = 0; i < categories.Count; i++)
+            {
+                Console.WriteLine($"{i} - {categories[i]}");
+            }
+
+            int inputNumber;
+            do
+            {
+                Console.Write("Odaberi kategoriju: ");
+            }
+            while (!int.TryParse(Console.ReadLine(), out inputNumber) || inputNumber < 0 || inputNumber >= categories.Count);
+
+            Category chosenCategory = categories[inputNumber];
+
+            return (chosenFlight, chosenCategory);
+
         }
     }
 }

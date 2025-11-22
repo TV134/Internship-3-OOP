@@ -8,6 +8,7 @@
         public int YearOfBirth { get; set; }
         public string Password { get; set; }
         public List<Flight> TakenFlights { get; set; }
+        public Dictionary<Flight, Category> FlightAndSeat = new Dictionary<Flight, Category>();
         public Passenger(string name, string surname, string email, string password,List<Flight> flights) : base(name)
         {
             this.Name = name;
