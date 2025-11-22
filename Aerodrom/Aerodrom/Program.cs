@@ -1,14 +1,29 @@
 ﻿using Aerodrom.classes;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Xml.Linq;
-using static System.Net.Mime.MediaTypeNames;
-
 namespace Aerodrom
 {
     public class Program
     {
+        static List<Employee> employees = new List<Employee>
+        {
+            new Employee("Marko","Horvat",Position.Captain,new DateTime(1980,5,12),Gender.Male),
+            new Employee("Ivan","Kovač",Position.Copilot,new DateTime(1987,3,2),Gender.Male),
+            new Employee("Ana","Marić",Position.Steward,new DateTime(1990,9,21),Gender.Female),
+            new Employee("Laura","Barišić",Position.Steward,new DateTime(1996,1,14),Gender.Female),
+            new Employee("Petar","Jurić",Position.Captain,new DateTime(1978,11,5),Gender.Male),
+            new Employee("Sara","Rajić",Position.Copilot,new DateTime(1989,6,30),Gender.Female),
+            new Employee("Maja","Perić",Position.Steward,new DateTime(1991,12,8),Gender.Female),
+            new Employee("Tomislav","Novak",Position.Steward,new DateTime(1997,4,18),Gender.Male)
+        };
+        static List<Crew> crews = new List<Crew>
+        {
+            new Crew("Posada 1", new List<Employee> { employees[0], employees[1], employees[2], employees[3]})
+        };
+        static List<Plane> planes = new List<Plane>
+        {
+            new Plane("Boeing 737", 2010, 180, new Dictionary<Category,int>{{Category.Standard,150 },{Category.Buisness,30 }}),
+            new Plane("Airbus A320", 2015, 160, new Dictionary<Category,int>{{Category.Standard,140 },{Category.VIP,20 }}),
+            new Plane("Embraer E190", 2012, 90, new Dictionary<Category,int>{{Category.Standard,90 }})
+        };
         static List<Flight> Flights = new List<Flight>
         {
             new Flight("LH123", new DateTime(2025,11,21,10,0,0), new DateTime(2025,11,21,12,30,0), 1500,planes[0],crews[0],"Split"),
@@ -34,29 +49,6 @@ namespace Aerodrom
             {
                 Flights[0]
             }),
-        };
-
-        static List<Employee> employees = new List<Employee>
-        {
-            new Employee("Marko","Horvat",Position.Captain,new DateTime(1980,5,12),Gender.Male),
-            new Employee("Ivan","Kovač",Position.Copilot,new DateTime(1987,3,2),Gender.Male),
-            new Employee("Ana","Marić",Position.Steward,new DateTime(1990,9,21),Gender.Female),
-            new Employee("Laura","Barišić",Position.Steward,new DateTime(1996,1,14),Gender.Female),
-            new Employee("Petar","Jurić",Position.Captain,new DateTime(1978,11,5),Gender.Male),
-            new Employee("Sara","Rajić",Position.Copilot,new DateTime(1989,6,30),Gender.Female),
-            new Employee("Maja","Perić",Position.Steward,new DateTime(1991,12,8),Gender.Female),
-            new Employee("Tomislav","Novak",Position.Steward,new DateTime(1997,4,18),Gender.Male)
-        };
-        static List<Crew> crews = new List<Crew>
-        {
-            new Crew("Posada 1", new List<Employee> { employees[0], employees[1], employees[2], employees[3]})
-        };
-
-        static List<Plane> planes = new List<Plane>
-        {
-            new Plane("Boeing 737", 2010, 180, new Dictionary<Category,int>{{Category.Standard,150 },{Category.Buisness,30 }}),
-            new Plane("Airbus A320", 2015, 160, new Dictionary<Category,int>{{Category.Standard,140 },{Category.VIP,20 }}),
-            new Plane("Embraer E190", 2012, 90, new Dictionary<Category,int>{{Category.Standard,90 }})
         };
 
         static Dictionary<string, string> passengerLog = new Dictionary<string, string>
@@ -796,7 +788,7 @@ namespace Aerodrom
                         break;
 
                     case "4":
-                        CrewMenu();
+                        RemoveFlight(allFlights);
                         break;
 
                     case "5":
@@ -810,6 +802,22 @@ namespace Aerodrom
                 Console.WriteLine("Klikni tipku za nastavak");
                 Console.ReadKey();
             }while (menu!="5");
+        }
+        static void RemoveFlight(List<Flight> logFlights)
+        {
+            if (logFlights.Count < 1) {
+                Console.WriteLine("Ne postoje letovi");
+                return;
+            }
+            Flight chosenFlight=PickList(logFlights);
+            bool confirm = Confirm();
+            if (!confirm || (chosenFlight.DepartureTime - DateTime.Now).TotalHours <= 24)
+            { 
+                Console.WriteLine("Otkazano brisanje");
+                return;
+            }
+            logFlights.Remove(chosenFlight);
+            Console.WriteLine("Izbrisan let");
         }
     }
 }
