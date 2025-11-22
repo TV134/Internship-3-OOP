@@ -1,5 +1,7 @@
 ﻿using Aerodrom.classes;
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Xml.Linq;
 
 namespace Aerodrom
@@ -170,6 +172,7 @@ namespace Aerodrom
 
                 Console.Write("Odabir: ");
                 menu = Console.ReadLine();
+                string? choice;
 
                 switch (menu)
                 {
@@ -187,11 +190,13 @@ namespace Aerodrom
                         break;
 
                     case "3":
-                        string? choice=FindMethod();
+                        choice=FindMethod();
                         Search(choice,planes);
                         break;
 
                     case "4":
+                        choice=FindMethod();
+                        Delete(choice,planes);
                         break;
 
                     case "5":
@@ -411,56 +416,57 @@ namespace Aerodrom
             return newPlane;
         }
 
-        static bool FindById<T>(List<T> list, Guid id) where T : Base
+        static (bool,T) FindById<T>(List<T> list, Guid id) where T : Base
         {
             foreach (var item in list)
             {
                 if (item.Id == id)
                 {
-                    return true;
+                    return (true,item);
                 }
             }
-            return false;
+            return (false,null);
         }
-        static bool FindByName<T>(List<T> list, string name) where T : Base
+        static (bool,T) FindByName<T>(List<T> list, string name) where T : Base
         {
             foreach (var item in list)
             {
                 if (item.Name.ToLower().CompareTo(name.ToLower()) == 0)
                 {
-                    return true;
+                    return (true,item);
                 }
             }
-            return false;
+            return (false,null);
         }
 
         static void Search<T>(string choice, List<T> list) where T : Base
         {
             bool found = false;
+            T item = null;
             if (choice == "1")
             {
-                Console.Write("Unesi ID leta: ");
-                Guid id = Guid.Parse(Console.ReadLine());
-                found = FindById(Flights, id);
+                Console.Write("Unesi ID: ");
+                if (Guid.TryParse(Console.ReadLine(),out Guid id))
+                {
+                    (found,item) = FindById(list, id);
+                }
                 
             }
             else if (choice == "2")
             {
-                Console.Write("Unesi naziv leta: ");
+                Console.Write("Unesi naziv: ");
                 string name = Console.ReadLine();
-                found = FindByName(Flights, name);
+                (found,item) = FindByName(list, name);
             }
-            if (found)
-            {
-                foreach (var item in list)
-                {
-                    item.Description();
-                }
-            }
-            else
+            if (!found)
             {
                 Console.WriteLine("Informacija nije pronađena.");
             }
+            else
+            {
+                item.Description();
+            }
+
         }
         static string FindMethod()
         {
@@ -472,6 +478,35 @@ namespace Aerodrom
             }
             while (choice != "1" && choice != "2");
             return choice;
+        }
+        static void Delete<T>(string choice, List<T> list) where T : Base
+        {
+            bool found = false;
+            T item = null;
+            if (choice == "1")
+            {
+                Console.Write("Unesi ID: ");
+                if (Guid.TryParse(Console.ReadLine(), out Guid id))
+                {
+                    (found,item) = FindById(list, id);
+                }
+
+            }
+            else if (choice == "2")
+            {
+                Console.Write("Unesi naziv: ");
+                string name = Console.ReadLine();
+                (found,item) = FindByName(list, name);
+            }
+            if (!found)
+            {
+                Console.WriteLine("Informacija nije pronađena.");
+            }
+            else
+            {
+                list.Remove(item);
+                Console.WriteLine("Informacija obrisana.");
+            }
         }
     }
 }
