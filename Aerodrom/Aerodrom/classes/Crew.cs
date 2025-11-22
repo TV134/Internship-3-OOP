@@ -2,17 +2,15 @@
 {
     public class Crew : Base
     {
-        public string CrewName { get; set; }
         public List<Employee> Employees { get; set; }
-        public Crew( string crewName, List<Employee> employees) : base()
+        public Crew(string name, List<Employee> employees) : base(name)
         {
-            this.CrewName = crewName;
             this.Employees = employees;
         }
 
         public override void Description()
         {
-            Console.WriteLine($"{this.CrewName}");
+            Console.WriteLine($"{this.Name}");
             foreach (var employee in this.Employees)
             {
                 employee.Description();

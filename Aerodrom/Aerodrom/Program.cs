@@ -1,4 +1,5 @@
 ﻿using Aerodrom.classes;
+using System;
 using System.Xml.Linq;
 
 namespace Aerodrom
@@ -25,7 +26,7 @@ namespace Aerodrom
         {
             new Plane("Boeing 737", 2010, 180, new Dictionary<Category,int>{{Category.Standard,150 },{Category.Buisness,30 }}),
             new Plane("Airbus A320", 2015, 160, new Dictionary<Category,int>{{Category.Standard,140 },{Category.VIP,20 }}),
-            new Plane("Embraer E190", 2012, 100, new Dictionary<Category,int>{{Category.Standard,90 }})
+            new Plane("Embraer E190", 2012, 90, new Dictionary<Category,int>{{Category.Standard,90 }})
         };
 
         static List<Flight> Flights = new List<Flight>
@@ -135,6 +136,8 @@ namespace Aerodrom
                         break;
 
                     case "3":
+                        string? choice = FindMethod();
+                        Search(choice, Flights);
                         break;
 
                     case "4":
@@ -178,9 +181,14 @@ namespace Aerodrom
                         break;
 
                     case "2":
+                        Plane newPlane = AddPlane();
+                        planes.Add(newPlane);
+                        Console.WriteLine("Avion unesen");
                         break;
 
                     case "3":
+                        string? choice=FindMethod();
+                        Search(choice,planes);
                         break;
 
                     case "4":
@@ -244,7 +252,7 @@ namespace Aerodrom
         }
         static void AddEmployee()
         {
-            Employee newEmployee=new Employee();
+            Employee newEmployee = new Employee();
             Console.Write("Unesite ime: ");
             string? name = Console.ReadLine();
             while (newEmployee.IsValidName(name))
@@ -267,14 +275,14 @@ namespace Aerodrom
             string? position = Console.ReadLine();
             while (true)
             {
-                if (position=="1" || position=="2" || position=="3")
+                if (position == "1" || position == "2" || position == "3")
                 {
                     break;
                 }
                 Console.Write("Krivi unos. Odaberite poziciju: ");
                 position = Console.ReadLine();
             }
-            newEmployee.Job = position=="1" ? Position.Captain : position=="2" ? Position.Copilot : Position.Steward;
+            newEmployee.Job = position == "1" ? Position.Captain : position == "2" ? Position.Copilot : Position.Steward;
 
             DateTime birthDay;
             bool validDate = false;
@@ -307,21 +315,21 @@ namespace Aerodrom
         static void AddCrew()
         {
             var notInCrew = employees.Where(e => !crews.SelectMany(c => c.Employees).Contains(e)).ToList();
-            var availableCaptains= notInCrew.Where(e => e.Job == Position.Captain).ToList();
-            var availableCopilots= notInCrew.Where(e => e.Job == Position.Copilot).ToList();
-            var availableStewards= notInCrew.Where(e => e.Job == Position.Steward).ToList();
+            var availableCaptains = notInCrew.Where(e => e.Job == Position.Captain).ToList();
+            var availableCopilots = notInCrew.Where(e => e.Job == Position.Copilot).ToList();
+            var availableStewards = notInCrew.Where(e => e.Job == Position.Steward).ToList();
             Console.Write("Unesite naziv posade: ");
             string? crewName = Console.ReadLine();
             var captain = SelectEmployee(Position.Captain, availableCaptains);
             var copilot = SelectEmployee(Position.Copilot, availableCopilots);
             var steward1 = SelectEmployee(Position.Steward, availableStewards);
-            var steward2 = SelectEmployee(Position.Steward, availableStewards.Where(e => e!=steward1).ToList());
-            if (captain==null || copilot==null || steward1==null || steward2==null)
+            var steward2 = SelectEmployee(Position.Steward, availableStewards.Where(e => e != steward1).ToList());
+            if (captain == null || copilot == null || steward1 == null || steward2 == null)
             {
-                Console.WriteLine("Nema dovoljno dostupnih zaposlenika za formiranje posade.");
+                Console.WriteLine("Nema dovoljno zaposlenika za formiranje posade.");
                 return;
             }
-            
+
             Crew newCrew = new Crew(crewName, new List<Employee> { captain, copilot, steward1, steward2 });
             crews.Add(newCrew);
             Console.WriteLine("Unesena nova posada");
@@ -330,12 +338,12 @@ namespace Aerodrom
         static Employee SelectEmployee(Position position, List<Employee> availableEmployees)
         {
             Console.WriteLine($"Unesi {position}:");
-            var selectForCrew=availableEmployees.Where(e => e.Job == position).ToList();
-            if (selectForCrew.Count<1)
+            var selectForCrew = availableEmployees.Where(e => e.Job == position).ToList();
+            if (selectForCrew.Count < 1)
             {
                 return null;
             }
-            List<int> number=new List<int>();
+            List<int> number = new List<int>();
             for (int i = 0; i < selectForCrew.Count; i++)
             {
                 Console.WriteLine($"{i}: ");
@@ -354,7 +362,7 @@ namespace Aerodrom
             return selectForCrew[inputNumber];
         }
 
-        static void AddPlane()
+        static Plane AddPlane()
         {
             Plane newPlane = new Plane();
             Console.Write("Unesite ime: ");
@@ -372,9 +380,98 @@ namespace Aerodrom
             {
                 Console.Write("Unesi godinu proizvodnje: ");
                 validYear = int.TryParse(Console.ReadLine(), out yearOfCreation);
-            }while(!validYear || yearOfCreation < 1900 || yearOfCreation > DateTime.Now.Year);
+            } while (!validYear || yearOfCreation < 1900 || yearOfCreation > DateTime.Now.Year);
 
             newPlane.YearOfCreation = yearOfCreation;
+
+            while (newPlane.Categories.Count == 0)
+            {
+                foreach (var category in Enum.GetValues(typeof(Category)))
+                {
+                    Console.WriteLine($"Želiš li unijeti {category} (Y/N)");
+                    string yesNo = Console.ReadLine().ToUpper();
+                    if (yesNo == "Y")
+                    {
+                        int seats;
+                        bool validSeats = false;
+                        do
+                        {
+                            Console.Write($"Unesi broj sjedala za kategoriju {category}: ");
+                            validSeats = int.TryParse(Console.ReadLine(), out seats);
+                        } while (!validSeats || seats < 0);
+                        newPlane.Categories.Add((Category)category, seats);
+                    }
+                }
+            }
+
+            newPlane.Capacity = newPlane.Categories.Sum(c => c.Value);
+
+            newPlane.NumberOfFlights = 0;
+
+            return newPlane;
+        }
+
+        static bool FindById<T>(List<T> list, Guid id) where T : Base
+        {
+            foreach (var item in list)
+            {
+                if (item.Id == id)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+        static bool FindByName<T>(List<T> list, string name) where T : Base
+        {
+            foreach (var item in list)
+            {
+                if (item.Name.ToLower().CompareTo(name.ToLower()) == 0)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        static void Search<T>(string choice, List<T> list) where T : Base
+        {
+            bool found = false;
+            if (choice == "1")
+            {
+                Console.Write("Unesi ID leta: ");
+                Guid id = Guid.Parse(Console.ReadLine());
+                found = FindById(Flights, id);
+                
+            }
+            else if (choice == "2")
+            {
+                Console.Write("Unesi naziv leta: ");
+                string name = Console.ReadLine();
+                found = FindByName(Flights, name);
+            }
+            if (found)
+            {
+                foreach (var item in list)
+                {
+                    item.Description();
+                }
+            }
+            else
+            {
+                Console.WriteLine("Informacija nije pronađena.");
+            }
+        }
+        static string FindMethod()
+        {
+            string? choice = "";
+            do
+            {
+                Console.WriteLine("Pretraga po:1 - ID, 2 - Nazivu: ");
+                choice = Console.ReadLine();
+            }
+            while (choice != "1" && choice != "2");
+            return choice;
         }
     }
 }

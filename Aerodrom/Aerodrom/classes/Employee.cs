@@ -2,14 +2,12 @@
 {
     public class Employee : Base
     {
-        public string Name { get; set; }
         public string Surname { get; set; }
         public Position Job { get; set; }
         public DateTime BirthDate { get; set; }
         public Gender Gender { get; set; }
-        public Employee(string name, string surname, Position job, DateTime date, Gender gender) : base()
+        public Employee(string name, string surname, Position job, DateTime date, Gender gender) : base(name)
         {
-            this.Name = name;
             this.Surname = surname;
             this.Job = job;
             this.BirthDate = date;
