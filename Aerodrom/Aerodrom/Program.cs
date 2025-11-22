@@ -3,6 +3,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Xml.Linq;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace Aerodrom
 {
@@ -33,9 +34,9 @@ namespace Aerodrom
 
         static List<Flight> Flights = new List<Flight>
         {
-            new Flight("LH123", new DateTime(2025,11,21,10,0,0), new DateTime(2025,11,21,12,30,0), 1500,planes[0],crews[0],"Split","London"),
-            new Flight("AF456", new DateTime(2025,11,22,14,0,0), new DateTime(2025,11,22,17,0,0), 2200,planes[1],crews[0],"Tokyo","New York"),
-            new Flight("BA789", new DateTime(2025,11,23,8,0,0), new DateTime(2025,11,23,10,15,0), 1300,planes[2],crews[0],"Frankfurt","Istanbul")
+            new Flight("LH123", new DateTime(2025,11,21,10,0,0), new DateTime(2025,11,21,12,30,0), 1500,planes[0],crews[0],"Split"),
+            new Flight("AF456", new DateTime(2025,11,22,14,0,0), new DateTime(2025,11,22,17,0,0), 2200,planes[1],crews[0],"Tokyo"),
+            new Flight("BA789", new DateTime(2025,11,23,8,0,0), new DateTime(2025,11,23,10,15,0), 1300,planes[2],crews[0],"Frankfurt")
         };
 
         static void Main(string[] args)
@@ -135,6 +136,7 @@ namespace Aerodrom
                         break;
 
                     case "2":
+                        AddFlight();
                         break;
 
                     case "3":
@@ -143,6 +145,7 @@ namespace Aerodrom
                         break;
 
                     case "4":
+                        UpdateFlight(Flights);
                         break;
 
                     case "5":
@@ -461,11 +464,11 @@ namespace Aerodrom
             if (!found)
             {
                 Console.WriteLine("Informacija nije pronađena.");
+                return;
             }
-            else
-            {
-                item.Description();
-            }
+            
+            item.Description();
+            
 
         }
         static string FindMethod()
@@ -501,12 +504,138 @@ namespace Aerodrom
             if (!found)
             {
                 Console.WriteLine("Informacija nije pronađena.");
+                return;
             }
-            else
+            
+            list.Remove(item);
+            Console.WriteLine("Informacija obrisana.");
+            
+        }
+        static void UpdateFlight(List<Flight> flights)
+        {
+            bool found = false;
+            Flight item = null;
+            Console.Write("Unesi ID: ");
+            if (Guid.TryParse(Console.ReadLine(), out Guid id))
             {
-                list.Remove(item);
-                Console.WriteLine("Informacija obrisana.");
+                (found, item) = FindById(flights, id);
             }
+            if (!found)
+            {
+                Console.WriteLine("Informacija nije pronađena.");
+                return;
+            }
+
+            DateTime departure;
+            bool validDate = false;
+            do
+            {
+                Console.Write("Unesi datum polaska: ");
+                validDate = DateTime.TryParse(Console.ReadLine(), out departure);
+            }
+            while (!validDate || (departure <= DateTime.Now));
+
+            DateTime arival;
+            bool validArrive = false;
+            do
+            {
+                Console.Write("Unesi datum dolaska: ");
+                validArrive = DateTime.TryParse(Console.ReadLine(), out arival);
+            }
+            while (!validArrive || (arival <= DateTime.Now));
+
+
+
+            item.Crew = PickList(crews);
+            item.ArrivalTime = arival;
+            item.DepartureTime = departure;
+            item.Duration = item.CalculateDuration();
+
+        }
+
+        static void AddFlight()
+        {
+            Flight newFlight = new Flight();
+            Console.Write("Unesite ime: ");
+            string? name = Console.ReadLine();
+            while (newFlight.IsValidName(name))
+            {
+                Console.Write("Ime ne sadrži slova. Unesite ime: ");
+                name = Console.ReadLine();
+            }
+
+            Console.Write("Unesite mjesto: ");
+            string? place = Console.ReadLine();
+            while (newFlight.IsValidName(place))
+            {
+                Console.Write("Prezime ne sadrži slova. Unesite prezime: ");
+                place = Console.ReadLine();
+            }
+
+            DateTime departure;
+            bool validDate = false;
+            do
+            {
+                Console.Write("Unesi datum polaska: ");
+                validDate = DateTime.TryParse(Console.ReadLine(), out departure);
+            }
+            while (!validDate || (departure <= DateTime.Now));
+
+            DateTime arival;
+            bool validArrive = false;
+            do
+            {
+                Console.Write("Unesi datum dolaska: ");
+                validArrive = DateTime.TryParse(Console.ReadLine(), out arival);
+            }
+            while (!validArrive || (arival <= DateTime.Now));
+
+            int distance;
+            bool validNumber = false;
+            do
+            {
+                Console.Write("Unesi udaljenost: ");
+                validNumber = int.TryParse(Console.ReadLine(), out distance);
+            }
+            while (!validNumber || (distance <= 0));
+
+            newFlight.Crew= PickList(crews);
+            newFlight.Plane= PickList(planes);
+            newFlight.Name = name;
+            newFlight.Distance = distance;
+            newFlight.DepartureTime = departure;
+            newFlight.ArrivalTime = arival;
+            newFlight.LocStart = place;
+            newFlight.Duration = newFlight.CalculateDuration();
+            Flights.Add(newFlight);
+            Console.WriteLine("Let unesen");
+        }
+
+        static T PickList<T>(List<T> list) where T : Base
+        {
+            List<int> number = new List<int>();
+            for (int i = 0; i < list.Count; i++)
+            {
+                Console.WriteLine($"{i}: ");
+                list[i].Description();
+            }
+            bool validNumber = false;
+            int inputNumber;
+            do
+            {
+                Console.Write("Unesi broj izbora: ");
+                validNumber = int.TryParse(Console.ReadLine(), out inputNumber);
+
+            }
+            while (!validNumber && !number.Contains(inputNumber));
+            return list[inputNumber];
+        }
+
+        static bool Confirm()
+        {
+            Console.WriteLine($"Potvrdi: (Y/N)");
+            string yesNo = Console.ReadLine().ToUpper();
+            return yesNo == "Y"?true:false;
         }
     }
 }
